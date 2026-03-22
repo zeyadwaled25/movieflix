@@ -1,52 +1,132 @@
-# MovieFlix
+<p align="center">
+  <img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=6,12,20&height=200&section=header&text=MovieFlix&fontSize=70&fontAlignY=38&animation=fadeIn&fontColor=ffffff&desc=Your%20Personal%20Movie%20%26%20TV%20Universe&descAlignY=58&descSize=20" alt="MovieFlix Banner" width="100%"/>
+</p>
 
-MovieFlix is a movie and TV web app built with Next.js App Router and TypeScript.
-It includes authentication, watchlist management, TMDB-powered browsing, and detailed media pages.
+<p align="center">
+  <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&size=22&duration=3000&pause=800&color=E50914&center=true&vCenter=true&multiline=false&width=600&lines=Discover+Movies+%26+TV+Shows+🎬;Build+Your+Personal+Watchlist+📋;Powered+by+TMDB+API+🔥;Built+with+Next.js+15+%2B+TypeScript+⚡" alt="Animated Typing"/>
+</p>
 
-## Tech Stack
+<p align="center">
+  <a href="https://nextjs.org/"><img src="https://img.shields.io/badge/Next.js-15-black?style=for-the-badge&logo=nextdotjs&logoColor=white" alt="Next.js"/></a>
+  <a href="https://react.dev/"><img src="https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black" alt="React"/></a>
+  <a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/TypeScript-5.8-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript"/></a>
+  <a href="https://getbootstrap.com/"><img src="https://img.shields.io/badge/Bootstrap-5-7952B3?style=for-the-badge&logo=bootstrap&logoColor=white" alt="Bootstrap"/></a>
+  <a href="https://www.prisma.io/"><img src="https://img.shields.io/badge/Prisma-5-2D3748?style=for-the-badge&logo=prisma&logoColor=white" alt="Prisma"/></a>
+  <a href="https://www.sqlite.org/"><img src="https://img.shields.io/badge/SQLite-003B57?style=for-the-badge&logo=sqlite&logoColor=white" alt="SQLite"/></a>
+</p>
 
-- Next.js 15 (App Router)
-- React 19 + TypeScript
-- Bootstrap 5
-- Prisma 5 + SQLite
-- JWT session cookies (`jose`)
+---
 
-## Main Features
+## ✨ Features
 
-- Auth: register, login, logout, and current-user session endpoint
-- Browse: trending, popular movies, and popular TV shows
-- Search: TMDB multi-search with suggestions
-- Media details page: cast, trailer, and similar titles
-- Watchlist: add/remove and view personal saved titles
-- Personalization APIs: preferences, ratings, history, recommendations
+<table>
+<tr>
+<td width="50%">
 
-## Project Routes
+### 🔐 Authentication
+- User registration & login
+- Secure JWT session cookies via `jose`
+- Password hashing with `bcryptjs`
+- Persistent session management
+
+### 🎬 Browse & Discover
+- Trending titles updated daily
+- Popular movies & TV shows
+- Detailed pages with cast, synopsis & runtime
+- Embedded YouTube trailer modal
+
+</td>
+<td width="50%">
+
+### 🔍 Smart Search
+- TMDB multi-search (movies, shows, actors)
+- Live search suggestions as you type
+
+### 📋 Watchlist & Personalization
+- Add / remove titles from your watchlist
+- Rate media 1–5 stars
+- Browsing history tracking
+- Preference settings (theme, pagination)
+- Personalized recommendations engine
+
+</td>
+</tr>
+</table>
+
+---
+
+## 🏗️ Project Structure
+
+```
+movieflix/
+├── app/                          # Next.js App Router
+│   ├── page.tsx                  # Home — Trending / Movies / TV sliders
+│   ├── layout.tsx                # Root layout
+│   ├── login/page.tsx            # Login page
+│   ├── register/page.tsx         # Registration page
+│   ├── my-list/page.tsx          # Personal watchlist
+│   ├── details/[mediaType]/[id]/ # Movie / TV details
+│   └── api/
+│       ├── auth/                 # register · login · logout · me
+│       ├── watchlist/            # Add · remove · list
+│       └── personalization/      # preferences · history · ratings · recommendations
+│
+├── components/                   # Reusable React components
+│   ├── UIComponents.tsx          # Loaders, skeletons, banners, toasts
+│   ├── LazyTrailerModal.tsx      # Lazy-loaded trailer modal
+│   ├── InfiniteScroll.tsx        # Infinite scroll
+│   └── Pagination.tsx            # Page navigation
+│
+├── lib/                          # Utility modules
+│   ├── tmdb.ts                   # TMDB API client + in-memory cache
+│   ├── auth.ts                   # Auth helpers
+│   ├── watchlist.ts              # Watchlist CRUD
+│   ├── personalization.ts        # Preferences & recommendations
+│   └── server/
+│       ├── session.ts            # JWT cookie management
+│       └── prisma.ts             # Prisma client
+│
+├── prisma/
+│   └── schema.prisma             # DB models: User · WatchlistItem · Rating · …
+│
+└── public/                       # Static assets (PWA manifest, robots.txt)
+```
+
+---
+
+## 🗺️ Routes
 
 ### Pages
 
-- `/`
-- `/login`
-- `/register`
-- `/my-list`
-- `/details/[mediaType]/[id]`
+| Path | Description |
+|------|-------------|
+| `/` | Home — browsing sliders |
+| `/login` | User login |
+| `/register` | New account creation |
+| `/my-list` | Personal watchlist |
+| `/details/[mediaType]/[id]` | Movie or TV show details |
 
-### API
+### API Endpoints
 
-- `POST /api/auth/register`
-- `POST /api/auth/login`
-- `POST /api/auth/logout`
-- `GET /api/auth/me`
-- `GET /api/watchlist`
-- `POST /api/watchlist`
-- `GET /api/personalization/preferences`
-- `PUT /api/personalization/preferences`
-- `GET /api/personalization/history`
-- `GET /api/personalization/view-history`
-- `GET /api/personalization/ratings`
-- `POST /api/personalization/ratings`
-- `GET /api/personalization/recommendations`
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/auth/register` | Create a new account |
+| `POST` | `/api/auth/login` | Login and receive session cookie |
+| `POST` | `/api/auth/logout` | Clear session cookie |
+| `GET` | `/api/auth/me` | Return current user |
+| `GET` | `/api/watchlist` | Retrieve watchlist |
+| `POST` | `/api/watchlist` | Add / remove a title |
+| `GET` | `/api/personalization/preferences` | Get user preferences |
+| `PUT` | `/api/personalization/preferences` | Update user preferences |
+| `GET` | `/api/personalization/history` | Browsing history |
+| `GET` | `/api/personalization/view-history` | View-history tracking |
+| `GET` | `/api/personalization/ratings` | Get ratings |
+| `POST` | `/api/personalization/ratings` | Submit a rating |
+| `GET` | `/api/personalization/recommendations` | Personalised recommendations |
 
-## Local Setup
+---
+
+## 🚀 Local Setup
 
 ### 1. Install dependencies
 
@@ -56,13 +136,15 @@ npm install
 
 ### 2. Create environment file
 
-Create `.env.local` with:
+Create `.env.local` in the project root:
 
 ```bash
 NEXT_PUBLIC_TMDB_API_KEY=your_tmdb_api_key
 SESSION_SECRET=your_long_random_secret_min_32_chars
 DATABASE_URL="file:./dev.db"
 ```
+
+> 💡 Get a free TMDB API key at [themoviedb.org](https://www.themoviedb.org/settings/api).
 
 ### 3. Run Prisma migration
 
@@ -76,13 +158,39 @@ npx prisma migrate dev --name init
 npm run dev
 ```
 
-Open `http://localhost:3000`.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-## Quality Checks Before Push
+---
+
+## ✅ Quality Checks
+
+Run the following before pushing:
 
 ```bash
-npm run lint
-npm run build
+npm run lint   # ESLint — Next.js Core Web Vitals rules
+npm run build  # Production build check
 ```
 
-If both commands pass, the project is ready to push.
+Both commands must pass before the project is ready to push.
+
+---
+
+## 🛠️ Tech Stack
+
+| Technology | Version | Role |
+|------------|---------|------|
+| [Next.js](https://nextjs.org/) | 15 | Full-stack React framework (App Router) |
+| [React](https://react.dev/) | 19 | UI library |
+| [TypeScript](https://www.typescriptlang.org/) | 5.8 | Type-safe JavaScript |
+| [Bootstrap](https://getbootstrap.com/) | 5 | Responsive CSS framework |
+| [Prisma](https://www.prisma.io/) | 5 | ORM & database migrations |
+| [SQLite](https://www.sqlite.org/) | — | Embedded relational database |
+| [jose](https://github.com/panva/jose) | 6.1 | JWT session management |
+| [bcryptjs](https://github.com/dcodeIO/bcrypt.js) | 3.0 | Secure password hashing |
+| [TMDB API](https://developer.themoviedb.org/) | v3 | Movie & TV data source |
+
+---
+
+<p align="center">
+  <img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=6,12,20&height=100&section=footer&animation=fadeIn" alt="Footer Wave" width="100%"/>
+</p>
