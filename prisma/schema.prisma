@@ -1,0 +1,81 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  passwordHash String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  watchlist WatchlistItem[]
+  preferences UserPreferences?
+
+  @@index([email])
+}
+
+model WatchlistItem {
+  id        Int      @id
+  userId    String
+  mediaType String   // "movie" or "tv"
+  title     String
+  posterPath String?
+  voteAverage Float
+  addedAt   DateTime @default(now())
+
+  // Relations
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([id, userId, mediaType])
+  @@index([userId])
+}
+
+model UserPreferences {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  theme     String   @default("dark") // "light" or "dark"
+  itemsPerPage Int   @default(20)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model ViewHistory {
+  id        String   @id @default(cuid())
+  userId    String
+  mediaId   Int
+  mediaType String   // "movie" or "tv"
+  viewedAt  DateTime @default(now())
+
+  @@index([userId])
+  @@index([mediaId])
+}
+
+model Rating {
+  id        String   @id @default(cuid())
+  userId    String
+  mediaId   Int
+  mediaType String   // "movie" or "tv"
+  rating    Int      // 1-5
+  ratedAt   DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, mediaId, mediaType])
+  @@index([userId])
+  @@index([mediaId])
+}

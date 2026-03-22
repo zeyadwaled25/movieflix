@@ -1,0 +1,22 @@
+{
+  "users": [
+    {
+      "id": "68683389-4c7b-471e-a558-a69190e72205",
+      "name": "Zeyad",
+      "email": "zeyadwaled165@gmail.com",
+      "passwordHash": "$2b$10$ElvJuI7uD3hj0OAjXn.g/.Pn9vh57p3oc303xZF4rPM6G.y3eaa7K",
+      "createdAt": "2026-03-21T13:47:30.960Z"
+    }
+  ],
+  "watchlists": {
+    "68683389-4c7b-471e-a558-a69190e72205": [
+      {
+        "id": 969681,
+        "mediaType": "movie",
+        "title": "Spider-Man: Brand New Day",
+        "posterPath": "/ucQ0QBXXQPSxeUmWfh4YQenIuB9.jpg",
+        "voteAverage": 0
+      }
+    ]
+  }
+}

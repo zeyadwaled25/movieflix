@@ -1,0 +1,19 @@
+# MovieFlix robots.txt
+# Allow all crawlers
+
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /_next/
+Disallow: /private/
+
+# Sitemap
+Sitemap: https://movieflix.com/sitemap.xml
+
+# Crawl delay (milliseconds)
+Crawl-delay: 1
+Request-rate: 1/1s
+
+# Google specific
+User-agent: Googlebot
+Allow: /

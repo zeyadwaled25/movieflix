@@ -1,0 +1,23 @@
+{
+  "name": "MovieFlix - Stream Movies & TV Shows",
+  "short_name": "MovieFlix",
+  "description": "Discover and stream the best movies and TV shows with ratings and recommendations",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "theme_color": "#dc3545",
+  "background_color": "#121212",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
