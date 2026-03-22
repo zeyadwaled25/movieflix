@@ -1,18 +1,21 @@
+import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
-import { jwtVerify } from "jose";
+import { SESSION_COOKIE_NAME, verifySessionToken } from "@/lib/server/session";
 import { prisma } from "@/lib/server/prisma";
 
-const secret = new TextEncoder().encode(process.env.JWT_SECRET || "your-secret");
-
 export async function POST(request: NextRequest) {
-  const token = request.cookies.get("auth_token")?.value;
+  const cookieStore = await cookies();
+  const token = cookieStore.get(SESSION_COOKIE_NAME)?.value;
   if (!token) {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
 
+  const session = await verifySessionToken(token);
+  if (!session) {
+    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  }
+
   try {
-    const decoded = await jwtVerify(token, secret);
-    const userId = decoded.payload.sub as string;
     const { mediaId, mediaType } = await request.json();
 
     if (!mediaId || !mediaType) {
@@ -23,7 +26,7 @@ export async function POST(request: NextRequest) {
     }
 
     const result = await prisma.viewHistory.create({
-      data: { userId, mediaId, mediaType },
+      data: { userId: session.userId, mediaId, mediaType },
     });
 
     return NextResponse.json(result);
