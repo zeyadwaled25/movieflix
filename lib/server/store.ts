@@ -69,7 +69,13 @@ export async function getWatchlistByUserId(
     orderBy: { addedAt: "desc" },
   });
 
-  return items.map((item) => ({
+  return items.map((item: {
+    id: number;
+    mediaType: string;
+    title: string;
+    posterPath: string | null;
+    voteAverage: number;
+  }) => ({
     id: item.id,
     mediaType: item.mediaType as MediaType,
     title: item.title,
