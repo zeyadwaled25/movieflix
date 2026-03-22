@@ -1,18 +1,18 @@
 <p align="center">
-  <img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=6,12,20&height=200&section=header&text=MovieFlix&fontSize=70&fontAlignY=38&animation=fadeIn&fontColor=ffffff&desc=Your%20Personal%20Movie%20%26%20TV%20Universe&descAlignY=58&descSize=20" alt="MovieFlix Banner" width="100%"/>
+  <img src="https://capsule-render.vercel.app/api?type=waving&amp;color=gradient&amp;customColorList=6,12,20&amp;height=200&amp;section=header&amp;text=MovieFlix&amp;fontSize=70&amp;fontAlignY=38&amp;animation=fadeIn&amp;fontColor=ffffff&amp;desc=Your%20Personal%20Movie%20%26%20TV%20Universe&amp;descAlignY=58&amp;descSize=20" alt="MovieFlix Banner" width="100%"/>
 </p>
 
 <p align="center">
-  <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&size=22&duration=3000&pause=800&color=E50914&center=true&vCenter=true&multiline=false&width=600&lines=Discover+Movies+%26+TV+Shows+🎬;Build+Your+Personal+Watchlist+📋;Powered+by+TMDB+API+🔥;Built+with+Next.js+15+%2B+TypeScript+⚡" alt="Animated Typing"/>
+  <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&amp;size=22&amp;duration=3000&amp;pause=800&amp;color=E50914&amp;center=true&amp;vCenter=true&amp;multiline=false&amp;width=600&amp;lines=Discover+Movies+%26+TV+Shows+🎬;Build+Your+Personal+Watchlist+📋;Powered+by+TMDB+API+🔥;Built+with+Next.js+15+%2B+TypeScript+⚡" alt="Animated Typing"/>
 </p>
 
 <p align="center">
-  <a href="https://nextjs.org/"><img src="https://img.shields.io/badge/Next.js-15-black?style=for-the-badge&logo=nextdotjs&logoColor=white" alt="Next.js"/></a>
-  <a href="https://react.dev/"><img src="https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black" alt="React"/></a>
-  <a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/TypeScript-5.8-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript"/></a>
-  <a href="https://getbootstrap.com/"><img src="https://img.shields.io/badge/Bootstrap-5-7952B3?style=for-the-badge&logo=bootstrap&logoColor=white" alt="Bootstrap"/></a>
-  <a href="https://www.prisma.io/"><img src="https://img.shields.io/badge/Prisma-5-2D3748?style=for-the-badge&logo=prisma&logoColor=white" alt="Prisma"/></a>
-  <a href="https://www.sqlite.org/"><img src="https://img.shields.io/badge/SQLite-003B57?style=for-the-badge&logo=sqlite&logoColor=white" alt="SQLite"/></a>
+  <a href="https://nextjs.org/"><img src="https://img.shields.io/badge/Next.js-15-black?style=for-the-badge&amp;logo=nextdotjs&amp;logoColor=white" alt="Next.js"/></a>
+  <a href="https://react.dev/"><img src="https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&amp;logo=react&amp;logoColor=black" alt="React"/></a>
+  <a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/TypeScript-5.8-3178C6?style=for-the-badge&amp;logo=typescript&amp;logoColor=white" alt="TypeScript"/></a>
+  <a href="https://getbootstrap.com/"><img src="https://img.shields.io/badge/Bootstrap-5-7952B3?style=for-the-badge&amp;logo=bootstrap&amp;logoColor=white" alt="Bootstrap"/></a>
+  <a href="https://www.prisma.io/"><img src="https://img.shields.io/badge/Prisma-5-2D3748?style=for-the-badge&amp;logo=prisma&amp;logoColor=white" alt="Prisma"/></a>
+  <a href="https://www.sqlite.org/"><img src="https://img.shields.io/badge/SQLite-003B57?style=for-the-badge&amp;logo=sqlite&amp;logoColor=white" alt="SQLite"/></a>
 </p>
 
 ---
@@ -192,5 +192,5 @@ Both commands must pass before the project is ready to push.
 ---
 
 <p align="center">
-  <img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=6,12,20&height=100&section=footer&animation=fadeIn" alt="Footer Wave" width="100%"/>
+  <img src="https://capsule-render.vercel.app/api?type=waving&amp;color=gradient&amp;customColorList=6,12,20&amp;height=100&amp;section=footer&amp;animation=fadeIn" alt="Footer Wave" width="100%"/>
 </p>
