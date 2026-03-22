@@ -17,7 +17,7 @@ CREATE TABLE "WatchlistItem" (
     "posterPath" TEXT,
     "voteAverage" DOUBLE PRECISION NOT NULL,
     "addedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT "WatchlistItem_pkey" PRIMARY KEY ("id"),
+    CONSTRAINT "WatchlistItem_pkey" PRIMARY KEY ("id", "userId", "mediaType"),
     CONSTRAINT "WatchlistItem_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
@@ -60,9 +60,6 @@ CREATE INDEX "User_email_idx" ON "User" ("email");
 
 -- CreateIndex
 CREATE INDEX "WatchlistItem_userId_idx" ON "WatchlistItem" ("userId");
-
--- CreateIndex
-CREATE UNIQUE INDEX "WatchlistItem_id_userId_mediaType_key" ON "WatchlistItem" ("id", "userId", "mediaType");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "UserPreferences_userId_key" ON "UserPreferences" ("userId");
