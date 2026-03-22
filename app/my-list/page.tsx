@@ -84,7 +84,12 @@ export default function MyListPage() {
   }, []);
 
   const handleRemove = async (item: WatchlistItem) => {
-    await removeFromWatchlist(item.id, item.mediaType);
+    const result = await removeFromWatchlist(item.id, item.mediaType);
+    if (!result.ok) {
+      setToast({ type: "error", message: result.message });
+      return;
+    }
+
     setItems(await getWatchlist());
     setToast({ type: "success", message: `Removed ${item.title} from My List` });
   };

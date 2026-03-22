@@ -29,28 +29,12 @@ function writeLocalWatchlist(items: WatchlistItem[]) {
   window.localStorage.setItem(LOCAL_WATCHLIST_KEY, JSON.stringify(items));
 }
 
-function toggleLocalWatchlist(item: WatchlistItem): boolean {
-  const items = readLocalWatchlist();
-  const index = items.findIndex((entry) => entry.id === item.id && entry.mediaType === item.mediaType);
-
-  if (index >= 0) {
-    items.splice(index, 1);
-    writeLocalWatchlist(items);
-    return false;
-  }
-
-  items.unshift(item);
-  writeLocalWatchlist(items);
-  return true;
-}
-
-function removeLocalWatchlistItem(id: number, mediaType: MediaType) {
-  const items = readLocalWatchlist().filter((entry) => !(entry.id === id && entry.mediaType === mediaType));
-  writeLocalWatchlist(items);
-}
-
 export type ToggleWatchlistResult =
   | { ok: true; saved: boolean }
+  | { ok: false; message: string };
+
+export type WatchlistActionResult =
+  | { ok: true }
   | { ok: false; message: string };
 
 async function parseList(response: Response): Promise<WatchlistItem[]> {
@@ -99,41 +83,44 @@ export async function toggleWatchlist(item: WatchlistItem): Promise<ToggleWatchl
 
     if (!response.ok) {
       const payload = (await response.json().catch(() => null)) as { message?: string } | null;
-
-      if (response.status >= 500) {
-        const saved = toggleLocalWatchlist(item);
-        return { ok: true, saved };
-      }
-
       return {
         ok: false,
         message: payload?.message || "Failed to update your watchlist."
       };
     }
 
-    const data = (await response.json()) as { saved: boolean };
-    // Keep local cache aligned with server truth.
-    const localSaved = toggleLocalWatchlist(item);
-    if (localSaved !== Boolean(data.saved)) {
-      toggleLocalWatchlist(item);
+    const data = (await response.json()) as { saved: boolean; items?: WatchlistItem[] };
+    if (Array.isArray(data.items)) {
+      writeLocalWatchlist(data.items);
     }
+
     return { ok: true, saved: Boolean(data.saved) };
   } catch {
-    const saved = toggleLocalWatchlist(item);
-    return { ok: true, saved };
+    return { ok: false, message: "Failed to update your watchlist. Please try again." };
   }
 }
 
-export async function removeFromWatchlist(id: number, mediaType: MediaType) {
+export async function removeFromWatchlist(id: number, mediaType: MediaType): Promise<WatchlistActionResult> {
   try {
     const response = await fetch(`/api/watchlist?id=${id}&mediaType=${mediaType}`, {
       method: "DELETE"
     });
 
-    if (!response.ok && response.status >= 500) {
-      removeLocalWatchlistItem(id, mediaType);
+    if (!response.ok) {
+      const payload = (await response.json().catch(() => null)) as { message?: string } | null;
+      return {
+        ok: false,
+        message: payload?.message || "Failed to remove item from your watchlist."
+      };
     }
+
+    const data = (await response.json().catch(() => null)) as { items?: WatchlistItem[] } | null;
+    if (data?.items && Array.isArray(data.items)) {
+      writeLocalWatchlist(data.items);
+    }
+
+    return { ok: true };
   } catch {
-    removeLocalWatchlistItem(id, mediaType);
+    return { ok: false, message: "Failed to remove item from your watchlist. Please try again." };
   }
 }
