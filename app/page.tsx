@@ -337,7 +337,7 @@ export default function HomePage() {
   const handleWatchlistToggle = async () => {
     if (!heroItem) return;
 
-    const saved = await toggleWatchlist({
+    const result = await toggleWatchlist({
       id: heroItem.id,
       mediaType: heroType,
       title: heroItem.title || heroItem.name || "Untitled",
@@ -345,11 +345,20 @@ export default function HomePage() {
       voteAverage: heroItem.vote_average ?? 0
     });
 
-    setHeroInList(saved);
+    if (!result.ok) {
+      setToast({ type: "error", message: result.message });
+      return;
+    }
+
+    setHeroInList(result.saved);
     setToast({
       type: "success",
-      message: saved ? "Added to My List" : "Removed from My List"
+      message: result.saved ? "Added to My List" : "Removed from My List"
     });
+  };
+
+  const handleBrandClick = () => {
+    resetToTrending(true);
   };
 
   const handleLogout = async () => {
@@ -564,9 +573,9 @@ export default function HomePage() {
 
       <nav className="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
         <div className="container">
-          <a className="navbar-brand text-danger fw-bold fs-3" href="#home">
+          <Link className="navbar-brand text-danger fw-bold fs-3" href="/" onClick={handleBrandClick}>
             MOVIEFLIX
-          </a>
+          </Link>
 
           <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span className="navbar-toggler-icon" />

@@ -109,16 +109,26 @@ export default function DetailsPage() {
   const handleWatchlistToggle = async () => {
     if (!details) return;
 
-    const saved = await toggleWatchlist({
+    const result = await toggleWatchlist({
       id: details.id,
       mediaType,
       title,
       posterPath: details.poster_path ?? null,
       voteAverage: details.vote_average
     });
-    setInList(saved);
+
+    if (!result.ok) {
+      setToast({
+        message: result.message,
+        type: "error"
+      });
+      setTimeout(() => setToast(null), 3000);
+      return;
+    }
+
+    setInList(result.saved);
     setToast({
-      message: saved ? "Added to My List" : "Removed from My List",
+      message: result.saved ? "Added to My List" : "Removed from My List",
       type: "success"
     });
     setTimeout(() => setToast(null), 3000);
@@ -253,9 +263,9 @@ export default function DetailsPage() {
     <>
       <nav className="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
         <div className="container">
-          <a className="navbar-brand text-danger fw-bold fs-3" href="#home">
+          <Link className="navbar-brand text-danger fw-bold fs-3" href="/">
             MOVIEFLIX
-          </a>
+          </Link>
           <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span className="navbar-toggler-icon" />
           </button>

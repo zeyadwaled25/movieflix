@@ -146,7 +146,7 @@ Create `.env.local` in the project root:
 ```bash
 NEXT_PUBLIC_TMDB_API_KEY=your_tmdb_api_key
 SESSION_SECRET=your_long_random_secret_min_32_chars
-DATABASE_URL="file:./dev.db"
+DATABASE_URL="postgresql://USER:PASSWORD@HOST:5432/DB_NAME?sslmode=require"
 RESEND_API_KEY=re_xxxxxxxxxxxxxxxxxxxxxxxx
 CONTACT_TO_EMAIL=support@yourdomain.com
 CONTACT_FROM_EMAIL="MovieFlix Contact <onboarding@resend.dev>"
@@ -166,7 +166,26 @@ CONTACT_FROM_EMAIL="MovieFlix Contact <onboarding@resend.dev>"
 npx prisma migrate dev --name init
 ```
 
-### 4. Start development server
+If you are using a hosted database (recommended), use a PostgreSQL URL:
+
+```bash
+DATABASE_URL="postgresql://USER:PASSWORD@HOST:5432/DB_NAME?sslmode=require"
+```
+
+### 4. Deployment notes (important)
+
+To keep auth and watchlist APIs working after deploy, make sure these environment variables are set in your hosting provider:
+
+- `NEXT_PUBLIC_TMDB_API_KEY`
+- `SESSION_SECRET`
+- `DATABASE_URL` (must be `postgresql://` or `postgres://`)
+- `RESEND_API_KEY`
+- `CONTACT_TO_EMAIL`
+- `CONTACT_FROM_EMAIL`
+
+This project runs `prisma migrate deploy` during Vercel build through `npm run vercel-build`.
+
+### 5. Start development server
 
 ```bash
 npm run dev
@@ -198,7 +217,7 @@ Both commands must pass before the project is ready to push.
 | [TypeScript](https://www.typescriptlang.org/)    | 5.8     | Type-safe JavaScript                    |
 | [Bootstrap](https://getbootstrap.com/)           | 5       | Responsive CSS framework                |
 | [Prisma](https://www.prisma.io/)                 | 5       | ORM & database migrations               |
-| [SQLite](https://www.sqlite.org/)                | —       | Embedded relational database            |
+| [PostgreSQL](https://www.postgresql.org/)        | —       | Relational database                     |
 | [jose](https://github.com/panva/jose)            | 6.1     | JWT session management                  |
 | [bcryptjs](https://github.com/dcodeIO/bcrypt.js) | 3.0     | Secure password hashing                 |
 | [TMDB API](https://developer.themoviedb.org/)    | v3      | Movie & TV data source                  |
