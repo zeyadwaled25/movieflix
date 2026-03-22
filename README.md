@@ -24,12 +24,14 @@
 <td width="50%">
 
 ### 🔐 Authentication
+
 - User registration & login
 - Secure JWT session cookies via `jose`
 - Password hashing with `bcryptjs`
 - Persistent session management
 
 ### 🎬 Browse & Discover
+
 - Trending titles updated daily
 - Popular movies & TV shows
 - Detailed pages with cast, synopsis & runtime
@@ -39,10 +41,12 @@
 <td width="50%">
 
 ### 🔍 Smart Search
+
 - TMDB multi-search (movies, shows, actors)
 - Live search suggestions as you type
 
 ### 📋 Watchlist & Personalization
+
 - Add / remove titles from your watchlist
 - Rate media 1–5 stars
 - Browsing history tracking
@@ -98,31 +102,32 @@ movieflix/
 
 ### Pages
 
-| Path | Description |
-|------|-------------|
-| `/` | Home — browsing sliders |
-| `/login` | User login |
-| `/register` | New account creation |
-| `/my-list` | Personal watchlist |
+| Path                        | Description              |
+| --------------------------- | ------------------------ |
+| `/`                         | Home — browsing sliders  |
+| `/login`                    | User login               |
+| `/register`                 | New account creation     |
+| `/my-list`                  | Personal watchlist       |
 | `/details/[mediaType]/[id]` | Movie or TV show details |
 
 ### API Endpoints
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `POST` | `/api/auth/register` | Create a new account |
-| `POST` | `/api/auth/login` | Login and receive session cookie |
-| `POST` | `/api/auth/logout` | Clear session cookie |
-| `GET` | `/api/auth/me` | Return current user |
-| `GET` | `/api/watchlist` | Retrieve watchlist |
-| `POST` | `/api/watchlist` | Add / remove a title |
-| `GET` | `/api/personalization/preferences` | Get user preferences |
-| `PUT` | `/api/personalization/preferences` | Update user preferences |
-| `GET` | `/api/personalization/history` | Browsing history |
-| `GET` | `/api/personalization/view-history` | View-history tracking |
-| `GET` | `/api/personalization/ratings` | Get ratings |
-| `POST` | `/api/personalization/ratings` | Submit a rating |
-| `GET` | `/api/personalization/recommendations` | Personalised recommendations |
+| Method | Endpoint                               | Description                           |
+| ------ | -------------------------------------- | ------------------------------------- |
+| `POST` | `/api/auth/register`                   | Create a new account                  |
+| `POST` | `/api/auth/login`                      | Login and receive session cookie      |
+| `POST` | `/api/auth/logout`                     | Clear session cookie                  |
+| `GET`  | `/api/auth/me`                         | Return current user                   |
+| `GET`  | `/api/watchlist`                       | Retrieve watchlist                    |
+| `POST` | `/api/watchlist`                       | Add / remove a title                  |
+| `GET`  | `/api/personalization/preferences`     | Get user preferences                  |
+| `PUT`  | `/api/personalization/preferences`     | Update user preferences               |
+| `GET`  | `/api/personalization/history`         | Browsing history                      |
+| `GET`  | `/api/personalization/view-history`    | View-history tracking                 |
+| `GET`  | `/api/personalization/ratings`         | Get ratings                           |
+| `POST` | `/api/personalization/ratings`         | Submit a rating                       |
+| `GET`  | `/api/personalization/recommendations` | Personalised recommendations          |
+| `POST` | `/api/contact`                         | Send contact message to support inbox |
 
 ---
 
@@ -142,9 +147,18 @@ Create `.env.local` in the project root:
 NEXT_PUBLIC_TMDB_API_KEY=your_tmdb_api_key
 SESSION_SECRET=your_long_random_secret_min_32_chars
 DATABASE_URL="file:./dev.db"
+RESEND_API_KEY=re_xxxxxxxxxxxxxxxxxxxxxxxx
+CONTACT_TO_EMAIL=support@yourdomain.com
+CONTACT_FROM_EMAIL="MovieFlix Contact <onboarding@resend.dev>"
 ```
 
 > 💡 Get a free TMDB API key at [themoviedb.org](https://www.themoviedb.org/settings/api).
+>
+> 💡 Contact form real delivery requires Resend setup:
+>
+> - `RESEND_API_KEY`: API key from Resend dashboard
+> - `CONTACT_TO_EMAIL`: inbox that receives messages
+> - `CONTACT_FROM_EMAIL`: verified sender in Resend (or `onboarding@resend.dev` for testing)
 
 ### 3. Run Prisma migration
 
@@ -177,17 +191,17 @@ Both commands must pass before the project is ready to push.
 
 ## 🛠️ Tech Stack
 
-| Technology | Version | Role |
-|------------|---------|------|
-| [Next.js](https://nextjs.org/) | 15 | Full-stack React framework (App Router) |
-| [React](https://react.dev/) | 19 | UI library |
-| [TypeScript](https://www.typescriptlang.org/) | 5.8 | Type-safe JavaScript |
-| [Bootstrap](https://getbootstrap.com/) | 5 | Responsive CSS framework |
-| [Prisma](https://www.prisma.io/) | 5 | ORM & database migrations |
-| [SQLite](https://www.sqlite.org/) | — | Embedded relational database |
-| [jose](https://github.com/panva/jose) | 6.1 | JWT session management |
-| [bcryptjs](https://github.com/dcodeIO/bcrypt.js) | 3.0 | Secure password hashing |
-| [TMDB API](https://developer.themoviedb.org/) | v3 | Movie & TV data source |
+| Technology                                       | Version | Role                                    |
+| ------------------------------------------------ | ------- | --------------------------------------- |
+| [Next.js](https://nextjs.org/)                   | 15      | Full-stack React framework (App Router) |
+| [React](https://react.dev/)                      | 19      | UI library                              |
+| [TypeScript](https://www.typescriptlang.org/)    | 5.8     | Type-safe JavaScript                    |
+| [Bootstrap](https://getbootstrap.com/)           | 5       | Responsive CSS framework                |
+| [Prisma](https://www.prisma.io/)                 | 5       | ORM & database migrations               |
+| [SQLite](https://www.sqlite.org/)                | —       | Embedded relational database            |
+| [jose](https://github.com/panva/jose)            | 6.1     | JWT session management                  |
+| [bcryptjs](https://github.com/dcodeIO/bcrypt.js) | 3.0     | Secure password hashing                 |
+| [TMDB API](https://developer.themoviedb.org/)    | v3      | Movie & TV data source                  |
 
 ---
 

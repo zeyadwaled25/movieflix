@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="MovieFlix icon">
+  <defs>
+    <linearGradient id="frame" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#dc3545" />
+      <stop offset="100%" stop-color="#9d1f2a" />
+    </linearGradient>
+    <linearGradient id="inner" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#111111" />
+      <stop offset="100%" stop-color="#202020" />
+    </linearGradient>
+  </defs>
+  <rect x="4" y="4" width="56" height="56" rx="14" fill="url(#frame)" />
+  <rect x="8" y="8" width="48" height="48" rx="11" fill="url(#inner)" />
+  <rect x="15" y="16" width="34" height="6" rx="2" fill="#dc3545" />
+  <path d="M16 17l5 5" stroke="#fff" stroke-width="1.7" />
+  <path d="M24 17l5 5" stroke="#fff" stroke-width="1.7" />
+  <path d="M32 17l5 5" stroke="#fff" stroke-width="1.7" />
+  <path d="M40 17l5 5" stroke="#fff" stroke-width="1.7" />
+  <rect x="15" y="25" width="34" height="23" rx="3" fill="#151515" stroke="#dc3545" stroke-width="1.8" />
+  <polygon points="28,31 39,36.5 28,42" fill="#ffffff" />
+</svg>

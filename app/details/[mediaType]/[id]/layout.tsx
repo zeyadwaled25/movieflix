@@ -10,6 +10,7 @@ interface Props {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://movieflix.com";
   const { mediaType: mediaTypeParam, id } = await params;
   const mediaType = (mediaTypeParam === "tv" ? "tv" : "movie") as MediaType;
   const contentId = Number(id);
@@ -19,7 +20,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
     if (!details) {
       return {
-        title: "Movie Details - MovieFlix",
+        title: "Movie Details",
         description: "View details about movies and TV shows on MovieFlix"
       };
     }
@@ -28,15 +29,20 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const description = details.overview || "View details about this movie or TV show";
     const image = getTmdbImageUrl(details.poster_path, "poster-md") ?? undefined;
 
+    const genreKeywords = details.genres?.map((g) => g.name).filter(Boolean) ?? [];
+
     return {
-      title: `${title} - MovieFlix`,
+      title,
       description,
-      keywords: `${title}, ${mediaType}, streaming, watch, ${details.genres?.map((g) => g.name).join(", ")}`,
+      keywords: [title, mediaType, "streaming", "watch", ...genreKeywords],
+      alternates: {
+        canonical: `/details/${mediaType}/${contentId}`
+      },
       openGraph: {
-        type: "video.movie",
+        type: mediaType === "movie" ? "video.movie" : "video.tv_show",
         title: `${title} on MovieFlix`,
         description,
-        url: `https://movieflix.com/details/${mediaType}/${contentId}`,
+        url: `${siteUrl}/details/${mediaType}/${contentId}`,
         images: image
           ? [
             {
@@ -58,7 +64,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   } catch (error) {
     console.error("Failed to generate metadata:", error);
     return {
-      title: "Movie Details - MovieFlix",
+      title: "Movie Details",
       description: "View details about movies and TV shows on MovieFlix"
     };
   }

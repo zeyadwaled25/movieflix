@@ -6,7 +6,7 @@ import { FormEvent, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getCurrentUser, logoutUser, type User } from "@/lib/auth";
 import { getWatchlist, removeFromWatchlist, type WatchlistItem } from "@/lib/watchlist";
-import { ToastNotification } from "@/components/UIComponents";
+import { SmartFallback, ToastNotification } from "@/components/UIComponents";
 import { getTmdbImageUrl } from "@/lib/tmdb";
 
 type ToastState = { type: "success" | "error" | "info"; message: string } | null;
@@ -23,6 +23,8 @@ export default function MyListPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentSlide, setCurrentSlide] = useState(0);
   const [toast, setToast] = useState<ToastState>(null);
+  const [isContactSending, setIsContactSending] = useState(false);
+  const [showBackToTop, setShowBackToTop] = useState(false);
 
   const filteredItems = useMemo(() => {
     const term = searchTerm.trim().toLowerCase();
@@ -71,6 +73,16 @@ export default function MyListPage() {
     setCurrentSlide((prev) => Math.min(prev, Math.max(0, totalPages - 1)));
   }, [totalPages]);
 
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowBackToTop(window.scrollY > 300);
+    };
+
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   const handleRemove = async (item: WatchlistItem) => {
     await removeFromWatchlist(item.id, item.mediaType);
     setItems(await getWatchlist());
@@ -82,9 +94,10 @@ export default function MyListPage() {
     router.push("/login");
   };
 
-  const handleContactSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleContactSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const formData = new FormData(event.currentTarget);
+    const form = event.currentTarget;
+    const formData = new FormData(form);
 
     const name = String(formData.get("name") ?? "").trim();
     const email = String(formData.get("email") ?? "").trim();
@@ -101,8 +114,34 @@ export default function MyListPage() {
       return;
     }
 
-    event.currentTarget.reset();
-    setToast({ type: "success", message: "Thanks! We will get back to you soon." });
+    try {
+      setIsContactSending(true);
+
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name,
+          email,
+          subject,
+          message
+        })
+      });
+
+      const data = (await response.json().catch(() => null)) as { message?: string } | null;
+      if (!response.ok) {
+        setToast({ type: "error", message: data?.message || "Failed to send your message. Please try again." });
+        return;
+      }
+
+      form.reset();
+      setToast({ type: "success", message: "Your message was sent successfully. We will contact you shortly." });
+    } catch (error) {
+      console.error("Contact request failed:", error);
+      setToast({ type: "error", message: "Failed to send your message. Please try again." });
+    } finally {
+      setIsContactSending(false);
+    }
   };
 
   return (
@@ -147,9 +186,16 @@ export default function MyListPage() {
             </form>
 
             <div className="d-flex align-items-center mt-2 mt-lg-0">
-              <span className="text-light me-3">Welcome, {user?.name ?? "User"}</span>
-              <button className="btn btn-outline-danger auth-btn" onClick={handleLogout}>
-                <i className="fas fa-sign-out-alt" /> Logout
+              <button className="profile-badge profile-logout-btn" onClick={handleLogout}>
+                <span className="profile-avatar" aria-hidden="true">
+                  <i className="fas fa-user" />
+                </span>
+                <span className="profile-meta text-start">
+                  <span className="profile-name">{user?.name ?? "User"}</span>
+                  <span className="profile-logout-text">
+                    <i className="fas fa-sign-out-alt me-1" /> Logout
+                  </span>
+                </span>
               </button>
             </div>
           </div>
@@ -165,9 +211,29 @@ export default function MyListPage() {
         </div>
 
         {items.length === 0 ? (
-          <div className="alert alert-secondary">Your watchlist is empty. Add titles from the home page.</div>
+          <SmartFallback
+            title="Your watchlist is empty"
+            message="Add movies and TV shows from the home page to build your personal list."
+            icon="fas fa-bookmark"
+            variant="info"
+            actions={
+              <Link href="/" className="btn btn-outline-danger btn-sm">
+                Discover Titles
+              </Link>
+            }
+          />
         ) : filteredItems.length === 0 ? (
-          <div className="alert alert-warning">No movies found in My List matching &quot;{searchTerm}&quot;.</div>
+          <SmartFallback
+            title="No matches in your list"
+            message={`We could not find titles matching "${searchTerm}".`}
+            icon="fas fa-magnifying-glass"
+            variant="warning"
+            actions={
+              <button type="button" className="btn btn-outline-danger btn-sm" onClick={() => setSearchTerm("")}>
+                Clear Search
+              </button>
+            }
+          />
         ) : (
           <div className="section-container movie-slider-container">
             <div className="movie-slider mylist-slider">
@@ -229,34 +295,64 @@ export default function MyListPage() {
         <div className="container">
           <div className="row justify-content-center">
             <div className="col-md-10">
-              <form className="contact-form" onSubmit={handleContactSubmit}>
-                <h2 className="text-center mb-4">Contact Us</h2>
-                <div className="row">
-                  <div className="col-md-6">
-                    <div className="form-group mb-3">
-                      <label htmlFor="name">Name</label>
-                      <input name="name" type="text" id="name" className="form-control contact mt-1" required />
-                    </div>
-                    <div className="form-group mb-3">
-                      <label htmlFor="email">Email</label>
-                      <input name="email" type="email" id="email" className="form-control contact mt-1" required />
-                    </div>
-                    <div className="form-group">
-                      <label htmlFor="subject">Subject</label>
-                      <input name="subject" type="text" id="subject" className="form-control contact mt-1" required />
-                    </div>
-                  </div>
-                  <div className="col-md-6 d-flex flex-column">
-                    <div className="form-group flex-grow-1 mt-3 mt-md-0">
-                      <label htmlFor="message">Message</label>
-                      <textarea name="message" id="message" className="form-control contact h-75 mt-1" required />
-                    </div>
-                    <button type="submit" className="btn btn-danger w-100 mt-3">
-                      Send Message
-                    </button>
-                  </div>
+              <div className="contact-shell">
+                <div className="contact-info-panel">
+                  <span className="contact-badge">MovieFlix Support</span>
+                  <h2 className="mb-2">Contact Us</h2>
+                  <p className="contact-intro mb-4">
+                    Share your feedback, report an issue, or request a title. Our support team is here to help.
+                  </p>
+                  <ul className="contact-points list-unstyled mb-0">
+                    <li>
+                      <i className="fas fa-clock" aria-hidden="true" />
+                      Typical response time: within 24 hours
+                    </li>
+                    <li>
+                      <i className="fas fa-film" aria-hidden="true" />
+                      Suggestions for movies and TV shows are always welcome
+                    </li>
+                    <li>
+                      <i className="fas fa-shield-alt" aria-hidden="true" />
+                      We keep your contact details private and secure
+                    </li>
+                  </ul>
                 </div>
-              </form>
+
+                <form className="contact-form" onSubmit={handleContactSubmit}>
+                  <div className="row">
+                    <div className="col-md-6">
+                      <div className="form-group mb-3">
+                        <label htmlFor="name">Name</label>
+                        <input name="name" type="text" id="name" className="form-control contact mt-1" placeholder="Your full name" required />
+                      </div>
+                      <div className="form-group mb-3">
+                        <label htmlFor="email">Email</label>
+                        <input name="email" type="email" id="email" className="form-control contact mt-1" placeholder="name@example.com" required />
+                      </div>
+                      <div className="form-group">
+                        <label htmlFor="subject">Subject</label>
+                        <input name="subject" type="text" id="subject" className="form-control contact mt-1" placeholder="How can we help?" required />
+                      </div>
+                    </div>
+                    <div className="col-md-6 d-flex flex-column">
+                      <div className="form-group flex-grow-1 mt-3 mt-md-0">
+                        <label htmlFor="message">Message</label>
+                        <textarea
+                          name="message"
+                          id="message"
+                          className="form-control contact h-75 mt-1"
+                          placeholder="Write your message here..."
+                          minLength={10}
+                          required
+                        />
+                      </div>
+                      <button type="submit" className="btn btn-danger w-100 mt-3 contact-submit-btn" disabled={isContactSending}>
+                        {isContactSending ? "Sending..." : "Send Message"}
+                      </button>
+                    </div>
+                  </div>
+                </form>
+              </div>
             </div>
           </div>
         </div>
@@ -305,6 +401,15 @@ export default function MyListPage() {
           </div>
         </div>
       </footer>
+
+      <button
+        type="button"
+        className={`back-to-top ${showBackToTop ? "visible" : ""}`}
+        onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+        aria-label="Back to top"
+      >
+        <i className="fas fa-chevron-up" aria-hidden="true" />
+      </button>
     </>
   );
 }

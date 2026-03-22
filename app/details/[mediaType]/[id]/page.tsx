@@ -18,7 +18,7 @@ import {
   type MediaType
 } from "@/lib/tmdb";
 import { isInWatchlist, toggleWatchlist } from "@/lib/watchlist";
-import { DetailsPageSkeleton, RatingStars, ToastNotification } from "@/components/UIComponents";
+import { DetailsPageSkeleton, RatingStars, SmartFallback, ToastNotification } from "@/components/UIComponents";
 
 const LazyTrailerEmbed = dynamic(
   () => import("@/components/LazyTrailerEmbed").then((mod) => mod.LazyTrailerEmbed),
@@ -41,6 +41,8 @@ export default function DetailsPage() {
   const [userRating, setUserRating] = useState<number | null>(null);
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
   const [user, setUser] = useState<User | null>(null);
+  const [isContactSending, setIsContactSending] = useState(false);
+  const [showBackToTop, setShowBackToTop] = useState(false);
 
   useEffect(() => {
     const loadData = async () => {
@@ -88,7 +90,21 @@ export default function DetailsPage() {
     void loadData();
   }, [contentId, mediaType, router]);
 
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowBackToTop(window.scrollY > 300);
+    };
+
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   const title = useMemo(() => details?.title || details?.name || "Details", [details]);
+  const trailerSearchUrl = useMemo(
+    () => `https://www.youtube.com/results?search_query=${encodeURIComponent(`${title} official trailer`)}`,
+    [title]
+  );
 
   const handleWatchlistToggle = async () => {
     if (!details) return;
@@ -155,9 +171,10 @@ export default function DetailsPage() {
     e.currentTarget.reset();
   };
 
-  const handleContactSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleContactSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const formData = new FormData(event.currentTarget);
+    const form = event.currentTarget;
+    const formData = new FormData(form);
 
     const name = String(formData.get("name") ?? "").trim();
     const email = String(formData.get("email") ?? "").trim();
@@ -175,8 +192,34 @@ export default function DetailsPage() {
       return;
     }
 
-    event.currentTarget.reset();
-    setToast({ type: "success", message: "Thank you for your message! We will get back to you soon." });
+    try {
+      setIsContactSending(true);
+
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name,
+          email,
+          subject,
+          message
+        })
+      });
+
+      const data = (await response.json().catch(() => null)) as { message?: string } | null;
+      if (!response.ok) {
+        setToast({ type: "error", message: data?.message || "Failed to send your message. Please try again." });
+        return;
+      }
+
+      form.reset();
+      setToast({ type: "success", message: "Your message was sent successfully. We will contact you shortly." });
+    } catch (error) {
+      console.error("Contact request failed:", error);
+      setToast({ type: "error", message: "Failed to send your message. Please try again." });
+    } finally {
+      setIsContactSending(false);
+    }
   };
 
   if (isLoading) {
@@ -186,10 +229,22 @@ export default function DetailsPage() {
   if (!details) {
     return (
       <main className="container py-5 mt-5">
-        <div className="alert alert-danger">Unable to load this title.</div>
-        <Link href="/" className="btn btn-outline-light">
-          Back to Home
-        </Link>
+        <SmartFallback
+          title="Unable to load this title"
+          message="Something went wrong while loading details for this title."
+          icon="fas fa-circle-exclamation"
+          variant="error"
+          actions={
+            <>
+              <Link href="/" className="btn btn-outline-light btn-sm">
+                Back to Home
+              </Link>
+              <button type="button" className="btn btn-outline-danger btn-sm" onClick={() => window.location.reload()}>
+                Try Again
+              </button>
+            </>
+          }
+        />
       </main>
     );
   }
@@ -223,9 +278,16 @@ export default function DetailsPage() {
               </li>
             </ul>
             <div className="d-flex align-items-center mt-2 mt-lg-0">
-              {user && <span className="text-light me-3">Welcome, {user.name}</span>}
-              <button className="btn btn-outline-danger auth-btn" onClick={handleLogout}>
-                <i className="fas fa-sign-out-alt" /> Logout
+              <button className="profile-badge profile-logout-btn" onClick={handleLogout}>
+                <span className="profile-avatar" aria-hidden="true">
+                  <i className="fas fa-user" />
+                </span>
+                <span className="profile-meta text-start">
+                  <span className="profile-name">{user?.name ?? "User"}</span>
+                  <span className="profile-logout-text">
+                    <i className="fas fa-sign-out-alt me-1" /> Logout
+                  </span>
+                </span>
               </button>
             </div>
           </div>
@@ -272,7 +334,22 @@ export default function DetailsPage() {
             {trailerKey ? (
               <LazyTrailerEmbed trailerKey={trailerKey} title={title} />
             ) : (
-              <p className="text-secondary">Trailer not available.</p>
+              <SmartFallback
+                title="Trailer not available"
+                message="No official trailer is available for this title right now."
+                icon="fas fa-film"
+                variant="info"
+                actions={
+                  <>
+                    <a href="#similar-titles" className="btn btn-outline-danger btn-sm">
+                      Browse Similar Titles
+                    </a>
+                    <a href={trailerSearchUrl} target="_blank" rel="noreferrer" className="btn btn-outline-light btn-sm">
+                      Search on YouTube
+                    </a>
+                  </>
+                }
+              />
             )}
           </div>
         </div>
@@ -280,7 +357,21 @@ export default function DetailsPage() {
         <section className="mt-5">
           <h3 className="mb-3">Top Cast</h3>
           <div className="row g-3">
-            {cast.length === 0 ? <p className="text-secondary">No cast data available.</p> : null}
+            {cast.length === 0 ? (
+              <div className="col-12">
+                <SmartFallback
+                  title="Cast details unavailable"
+                  message="We could not load cast information for this title yet."
+                  icon="fas fa-users"
+                  variant="warning"
+                  actions={
+                    <a href="#similar-titles" className="btn btn-outline-danger btn-sm">
+                      Explore Similar Titles
+                    </a>
+                  }
+                />
+              </div>
+            ) : null}
             {cast.map((member) => (
               <div key={member.id} className="col-6 col-md-4 col-lg-2">
                 <div className="card bg-dark text-white h-100 border-secondary">
@@ -301,10 +392,24 @@ export default function DetailsPage() {
           </div>
         </section>
 
-        <section className="mt-5">
+        <section id="similar-titles" className="mt-5">
           <h3 className="mb-3">Similar Titles</h3>
           <div className="row g-4">
-            {similar.length === 0 ? <p className="text-secondary">No similar titles found.</p> : null}
+            {similar.length === 0 ? (
+              <div className="col-12">
+                <SmartFallback
+                  title="No similar titles found"
+                  message="Try browsing from the home page to discover more recommendations."
+                  icon="fas fa-compass"
+                  variant="warning"
+                  actions={
+                    <Link href="/" className="btn btn-outline-danger btn-sm">
+                      Back to Home
+                    </Link>
+                  }
+                />
+              </div>
+            ) : null}
             {similar.map((item) => {
               const itemType: MediaType = item.name && !item.title ? "tv" : "movie";
               return (
@@ -334,34 +439,64 @@ export default function DetailsPage() {
         <div className="container">
           <div className="row justify-content-center">
             <div className="col-md-10">
-              <form className="contact-form" onSubmit={handleContactSubmit}>
-                <h2 className="text-center mb-4">Contact Us</h2>
-                <div className="row">
-                  <div className="col-md-6">
-                    <div className="form-group mb-3">
-                      <label htmlFor="name">Name</label>
-                      <input name="name" type="text" id="name" className="form-control contact mt-1" required />
-                    </div>
-                    <div className="form-group mb-3">
-                      <label htmlFor="email">Email</label>
-                      <input name="email" type="email" id="email" className="form-control contact mt-1" required />
-                    </div>
-                    <div className="form-group">
-                      <label htmlFor="subject">Subject</label>
-                      <input name="subject" type="text" id="subject" className="form-control contact mt-1" required />
-                    </div>
-                  </div>
-                  <div className="col-md-6 d-flex flex-column">
-                    <div className="form-group flex-grow-1 mt-3 mt-md-0">
-                      <label htmlFor="message">Message</label>
-                      <textarea name="message" id="message" className="form-control contact h-75 mt-1" required />
-                    </div>
-                    <button type="submit" className="btn btn-danger w-100 mt-3">
-                      Send Message
-                    </button>
-                  </div>
+              <div className="contact-shell">
+                <div className="contact-info-panel">
+                  <span className="contact-badge">MovieFlix Support</span>
+                  <h2 className="mb-2">Contact Us</h2>
+                  <p className="contact-intro mb-4">
+                    Share your feedback, report an issue, or request a title. Our support team is here to help.
+                  </p>
+                  <ul className="contact-points list-unstyled mb-0">
+                    <li>
+                      <i className="fas fa-clock" aria-hidden="true" />
+                      Typical response time: within 24 hours
+                    </li>
+                    <li>
+                      <i className="fas fa-film" aria-hidden="true" />
+                      Suggestions for movies and TV shows are always welcome
+                    </li>
+                    <li>
+                      <i className="fas fa-shield-alt" aria-hidden="true" />
+                      We keep your contact details private and secure
+                    </li>
+                  </ul>
                 </div>
-              </form>
+
+                <form className="contact-form" onSubmit={handleContactSubmit}>
+                  <div className="row">
+                    <div className="col-md-6">
+                      <div className="form-group mb-3">
+                        <label htmlFor="name">Name</label>
+                        <input name="name" type="text" id="name" className="form-control contact mt-1" placeholder="Your full name" required />
+                      </div>
+                      <div className="form-group mb-3">
+                        <label htmlFor="email">Email</label>
+                        <input name="email" type="email" id="email" className="form-control contact mt-1" placeholder="name@example.com" required />
+                      </div>
+                      <div className="form-group">
+                        <label htmlFor="subject">Subject</label>
+                        <input name="subject" type="text" id="subject" className="form-control contact mt-1" placeholder="How can we help?" required />
+                      </div>
+                    </div>
+                    <div className="col-md-6 d-flex flex-column">
+                      <div className="form-group flex-grow-1 mt-3 mt-md-0">
+                        <label htmlFor="message">Message</label>
+                        <textarea
+                          name="message"
+                          id="message"
+                          className="form-control contact h-75 mt-1"
+                          placeholder="Write your message here..."
+                          minLength={10}
+                          required
+                        />
+                      </div>
+                      <button type="submit" className="btn btn-danger w-100 mt-3 contact-submit-btn" disabled={isContactSending}>
+                        {isContactSending ? "Sending..." : "Send Message"}
+                      </button>
+                    </div>
+                  </div>
+                </form>
+              </div>
             </div>
           </div>
         </div>
@@ -442,6 +577,15 @@ export default function DetailsPage() {
           </div>
         </div>
       </footer>
+
+      <button
+        type="button"
+        className={`back-to-top ${showBackToTop ? "visible" : ""}`}
+        onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+        aria-label="Back to top"
+      >
+        <i className="fas fa-chevron-up" aria-hidden="true" />
+      </button>
     </>
   );
 }

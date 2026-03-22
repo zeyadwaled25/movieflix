@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { getCurrentUser, logoutUser, type User } from "@/lib/auth";
 import { isInWatchlist, toggleWatchlist } from "@/lib/watchlist";
-import { SectionSliderSkeleton, ToastNotification } from "@/components/UIComponents";
+import { SectionSliderSkeleton, SmartFallback, ToastNotification } from "@/components/UIComponents";
 import {
   fetchContent,
   getGenres,
@@ -156,6 +156,8 @@ export default function HomePage() {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [trailerKey, setTrailerKey] = useState<string | null>(null);
   const [toast, setToast] = useState<ToastState>(null);
+  const [isContactSending, setIsContactSending] = useState(false);
+  const [showBackToTop, setShowBackToTop] = useState(false);
   const [activeType, setActiveType] = useState<ContentBucket>("trending");
   const [heroInList, setHeroInList] = useState(false);
   const [isSliding, setIsSliding] = useState<Record<ContentBucket, boolean>>({
@@ -236,6 +238,16 @@ export default function HomePage() {
     const timer = window.setTimeout(() => setToast(null), 3000);
     return () => clearTimeout(timer);
   }, [toast]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowBackToTop(window.scrollY > 300);
+    };
+
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   useEffect(() => {
     const trimmed = searchQuery.trim();
@@ -492,9 +504,10 @@ export default function HomePage() {
     setToast({ type: "success", message: "Thank you for subscribing to our newsletter!" });
   };
 
-  const handleContactSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleContactSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const formData = new FormData(event.currentTarget);
+    const form = event.currentTarget;
+    const formData = new FormData(form);
 
     const name = String(formData.get("name") ?? "").trim();
     const email = String(formData.get("email") ?? "").trim();
@@ -511,8 +524,34 @@ export default function HomePage() {
       return;
     }
 
-    event.currentTarget.reset();
-    setToast({ type: "success", message: "Thank you for your message! We will get back to you soon." });
+    try {
+      setIsContactSending(true);
+
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name,
+          email,
+          subject,
+          message
+        })
+      });
+
+      const data = (await response.json().catch(() => null)) as { message?: string } | null;
+      if (!response.ok) {
+        setToast({ type: "error", message: data?.message || "Failed to send your message. Please try again." });
+        return;
+      }
+
+      form.reset();
+      setToast({ type: "success", message: "Your message was sent successfully. We will contact you shortly." });
+    } catch (error) {
+      console.error("Contact request failed:", error);
+      setToast({ type: "error", message: "Failed to send your message. Please try again." });
+    } finally {
+      setIsContactSending(false);
+    }
   };
 
   if (!user) {
@@ -585,7 +624,14 @@ export default function HomePage() {
               </button>
               <div className="search-suggestions" style={{ display: showSuggestions ? "block" : "none" }}>
                 <div className="suggestions-container">
-                  {suggestions.length === 0 ? <div className="p-3 text-center">No close matches found</div> : null}
+                  {suggestions.length === 0 ? (
+                    <SmartFallback
+                      title="No close matches found"
+                      message="Try another title keyword."
+                      variant="warning"
+                      inline
+                    />
+                  ) : null}
                   {suggestions.map((item) => (
                     <button
                       key={item.id}
@@ -857,34 +903,64 @@ export default function HomePage() {
         <div className="container">
           <div className="row justify-content-center">
             <div className="col-md-10">
-              <form className="contact-form" onSubmit={handleContactSubmit}>
-                <h2 className="text-center mb-4">Contact Us</h2>
-                <div className="row">
-                  <div className="col-md-6">
-                    <div className="form-group mb-3">
-                      <label htmlFor="name">Name</label>
-                      <input name="name" type="text" id="name" className="form-control contact mt-1" required />
-                    </div>
-                    <div className="form-group mb-3">
-                      <label htmlFor="email">Email</label>
-                      <input name="email" type="email" id="email" className="form-control contact mt-1" required />
-                    </div>
-                    <div className="form-group">
-                      <label htmlFor="subject">Subject</label>
-                      <input name="subject" type="text" id="subject" className="form-control contact mt-1" required />
-                    </div>
-                  </div>
-                  <div className="col-md-6 d-flex flex-column">
-                    <div className="form-group flex-grow-1 mt-3 mt-md-0">
-                      <label htmlFor="message">Message</label>
-                      <textarea name="message" id="message" className="form-control contact h-75 mt-1" required />
-                    </div>
-                    <button type="submit" className="btn btn-danger w-100 mt-3">
-                      Send Message
-                    </button>
-                  </div>
+              <div className="contact-shell">
+                <div className="contact-info-panel">
+                  <span className="contact-badge">MovieFlix Support</span>
+                  <h2 className="mb-2">Contact Us</h2>
+                  <p className="contact-intro mb-4">
+                    Share your feedback, report an issue, or request a title. Our support team is here to help.
+                  </p>
+                  <ul className="contact-points list-unstyled mb-0">
+                    <li>
+                      <i className="fas fa-clock" aria-hidden="true" />
+                      Typical response time: within 24 hours
+                    </li>
+                    <li>
+                      <i className="fas fa-film" aria-hidden="true" />
+                      Suggestions for movies and TV shows are always welcome
+                    </li>
+                    <li>
+                      <i className="fas fa-shield-alt" aria-hidden="true" />
+                      We keep your contact details private and secure
+                    </li>
+                  </ul>
                 </div>
-              </form>
+
+                <form className="contact-form" onSubmit={handleContactSubmit}>
+                  <div className="row">
+                    <div className="col-md-6">
+                      <div className="form-group mb-3">
+                        <label htmlFor="name">Name</label>
+                        <input name="name" type="text" id="name" className="form-control contact mt-1" placeholder="Your full name" required />
+                      </div>
+                      <div className="form-group mb-3">
+                        <label htmlFor="email">Email</label>
+                        <input name="email" type="email" id="email" className="form-control contact mt-1" placeholder="name@example.com" required />
+                      </div>
+                      <div className="form-group">
+                        <label htmlFor="subject">Subject</label>
+                        <input name="subject" type="text" id="subject" className="form-control contact mt-1" placeholder="How can we help?" required />
+                      </div>
+                    </div>
+                    <div className="col-md-6 d-flex flex-column">
+                      <div className="form-group flex-grow-1 mt-3 mt-md-0">
+                        <label htmlFor="message">Message</label>
+                        <textarea
+                          name="message"
+                          id="message"
+                          className="form-control contact h-75 mt-1"
+                          placeholder="Write your message here..."
+                          minLength={10}
+                          required
+                        />
+                      </div>
+                      <button type="submit" className="btn btn-danger w-100 mt-3 contact-submit-btn" disabled={isContactSending}>
+                        {isContactSending ? "Sending..." : "Send Message"}
+                      </button>
+                    </div>
+                  </div>
+                </form>
+              </div>
             </div>
           </div>
         </div>
@@ -968,6 +1044,15 @@ export default function HomePage() {
           </div>
         </div>
       </footer>
+
+      <button
+        type="button"
+        className={`back-to-top ${showBackToTop ? "visible" : ""}`}
+        onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+        aria-label="Back to top"
+      >
+        <i className="fas fa-chevron-up" aria-hidden="true" />
+      </button>
 
       {trailerKey ? <LazyTrailerModal trailerKey={trailerKey} onClose={() => setTrailerKey(null)} /> : null}
     </>

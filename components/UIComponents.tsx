@@ -118,6 +118,42 @@ export function NoContentMessage({ title, message }: { title: string; message: s
   );
 }
 
+export function SmartFallback({
+  title,
+  message,
+  icon = "fas fa-circle-info",
+  actions,
+  inline = false,
+  variant = "info"
+}: {
+  title: string;
+  message: string;
+  icon?: string;
+  actions?: React.ReactNode;
+  inline?: boolean;
+  variant?: "info" | "warning" | "error";
+}) {
+  if (inline) {
+    return (
+      <div className={`smart-fallback-inline smart-fallback-inline-${variant} p-3 text-center`} role="status" aria-live="polite">
+        <div className="smart-fallback-title small mb-1">{title}</div>
+        <div className="small text-secondary">{message}</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className={`smart-fallback-panel smart-fallback-panel-${variant}`} role="status" aria-live="polite">
+      <div className={`smart-fallback-icon smart-fallback-icon-${variant}`} aria-hidden="true">
+        <i className={icon} />
+      </div>
+      <h5 className="mb-2">{title}</h5>
+      <p className="text-secondary mb-3">{message}</p>
+      {actions ? <div className="d-flex flex-wrap gap-2">{actions}</div> : null}
+    </div>
+  );
+}
+
 export function ToastNotification({
   message,
   type = "success",
