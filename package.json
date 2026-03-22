@@ -5,13 +5,15 @@
   "scripts": {
     "dev": "next dev",
     "build": "prisma generate && next build",
-    "vercel-build": "prisma generate && prisma migrate deploy && next build",
+    "vercel-build": "prisma generate && prisma db push && next build",
     "start": "next start",
     "lint": "next lint",
     "postinstall": "prisma generate"
   },
   "dependencies": {
     "@prisma/client": "^5.20.0",
+    "@vercel/analytics": "^2.0.1",
+    "@vercel/speed-insights": "^2.0.0",
     "bcryptjs": "^3.0.2",
     "bootstrap": "^5.3.7",
     "jose": "^6.1.0",

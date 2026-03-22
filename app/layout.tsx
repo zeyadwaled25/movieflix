@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./globals.css";
 
@@ -118,7 +120,11 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="bg-dark text-white">{children}</body>
+      <body className="bg-dark text-white">
+        {children}
+        <Analytics />
+        <SpeedInsights />
+      </body>
     </html>
   );
 }
