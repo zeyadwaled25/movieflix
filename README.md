@@ -1,9 +1,9 @@
 <p align="center">
-  <img src="https://capsule-render.vercel.app/api?type=waving&amp;color=gradient&amp;customColorList=6,12,20&amp;height=200&amp;section=header&amp;text=MovieFlix&amp;fontSize=70&amp;fontAlignY=38&amp;animation=fadeIn&amp;fontColor=ffffff&amp;desc=Your%20Personal%20Movie%20%26%20TV%20Universe&amp;descAlignY=58&amp;descSize=20" alt="MovieFlix Banner" width="100%"/>
+  <img src="https://capsule-render.vercel.app/api?type=waving&amp;color=gradient&amp;customColorList=6,12,20&amp;height=200&amp;section=header&amp;text=MovieFlix&amp;fontSize=70&amp;fontAlignY=38&amp;animation=fadeIn&amp;fontColor=ffffff&amp;desc=Your%20Personal%20Movie%20and%20TV%20Universe&amp;descAlignY=58&amp;descSize=20" alt="MovieFlix Banner" width="100%"/>
 </p>
 
 <p align="center">
-  <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&amp;size=22&amp;duration=3000&amp;pause=800&amp;color=E50914&amp;center=true&amp;vCenter=true&amp;multiline=false&amp;width=600&amp;lines=Discover+Movies+%26+TV+Shows+🎬;Build+Your+Personal+Watchlist+📋;Powered+by+TMDB+API+🔥;Built+with+Next.js+15+%2B+TypeScript+⚡" alt="Animated Typing"/>
+  <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&amp;size=22&amp;duration=3000&amp;pause=800&amp;color=E50914&amp;center=true&amp;vCenter=true&amp;multiline=false&amp;width=600&amp;lines=Discover+Movies+and+TV+Shows+🎬;Build+Your+Personal+Watchlist+📋;Powered+by+TMDB+API+🔥;Built+with+Next.js+15+%2B+TypeScript+⚡" alt="Animated Typing"/>
 </p>
 
 <p align="center">
